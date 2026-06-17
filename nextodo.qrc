@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/Nex">
+        <file>qml/Main.qml</file>
+        <file>qml/components/AddTodoDialog.qml</file>
+        <file>qml/components/ConfirmDialog.qml</file>
+        <file>qml/components/DateSelector.qml</file>
+        <file>qml/components/EmptyState.qml</file>
+        <file>qml/components/FilterBar.qml</file>
+        <file>qml/components/PrioritySelector.qml</file>
+        <file>qml/components/SearchBox.qml</file>
+        <file>qml/components/TodoCard.qml</file>
+        <file>qml/layouts/DesktopLayout.qml</file>
+        <file>qml/layouts/PhoneLayout.qml</file>
+        <file>qml/layouts/TabletLayout.qml</file>
+        <file>qml/pages/EditTaskPage.qml</file>
+        <file>qml/pages/TaskDetailPage.qml</file>
+        <file>qml/pages/TaskListPage.qml</file>
+        <file>qml/styles/Theme.qml</file>
+        <file>qml/components/AppHeader.qml</file>
+    </qresource>
+</RCC>
