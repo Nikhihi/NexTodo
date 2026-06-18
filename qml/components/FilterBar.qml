@@ -5,6 +5,10 @@ import QtQuick.Layouts
 Item {
     id: root
 
+    property int totalNum: 0
+    property int completedNum: 0
+    property int activeNum: 0
+
     Rectangle {
         width: parent.width
         height: 58
@@ -26,9 +30,10 @@ Item {
                 topPadding: 0
                 bottomPadding: 0
                 checkable: true
+                checked: true
                 hoverEnabled: true
                 ButtonGroup.group: btnGroup
-                text: "全部"
+                text: "全部:" + root.totalNum
                 background: Rectangle {
                     anchors.fill: parent
                     radius: height / 2
@@ -56,7 +61,7 @@ Item {
                 checkable: true
                 hoverEnabled: true
                 ButtonGroup.group: btnGroup
-                text: "进行中"
+                text: "进行中:" + root.activeNum
                 background: Rectangle {
                     anchors.fill: parent
                     radius: height / 2
@@ -84,7 +89,7 @@ Item {
                 checkable: true
                 hoverEnabled: true
                 ButtonGroup.group: btnGroup
-                text: "已完成"
+                text: "已完成:" + root.completedNum
                 background: Rectangle {
                     anchors.fill: parent
                     radius: height / 2

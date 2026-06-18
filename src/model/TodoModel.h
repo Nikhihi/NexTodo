@@ -8,7 +8,12 @@
 class TodoModel : public QAbstractListModel
 {
     Q_OBJECT
+signals:
+    void countChanged();
 public:
+    Q_PROPERTY(int totalNum READ totalCount  NOTIFY countChanged)
+    Q_PROPERTY(int activeNum READ activeCount  NOTIFY countChanged)
+    Q_PROPERTY(int completedNum READ completedCount  NOTIFY countChanged)
 
     enum Roles{
         IdRole = Qt::UserRole + 1,

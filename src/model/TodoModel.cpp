@@ -133,7 +133,10 @@ void TodoModel::toggleTodo(const QString &id)
     item.completed = !item.completed;
 
     const auto modelIndex = index(row, 0);
+    //必须发才会通知qml里 数据改变了
+    //“第 row 行的数据变了，变的是 completed 和 dueGroup 这两个 role。”
     emit dataChanged(modelIndex, modelIndex, { CompletedRole, DueGroupRole });
+    emit countChanged();
 }
 
 int TodoModel::totalCount() const

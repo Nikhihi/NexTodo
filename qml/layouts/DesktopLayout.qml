@@ -13,6 +13,7 @@ Item {
     signal addTodoRequested()
     signal searchTextChangedByUser(string text)
 
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -40,6 +41,10 @@ Item {
             id: filter
             Layout.fillWidth: true
             Layout.preferredHeight: 58
+
+            totalNum: todoModel.totalNum
+            activeNum: todoModel.activeNum
+            completedNum: todoModel.completedNum
         }
         Rectangle {
             Layout.fillWidth: true
