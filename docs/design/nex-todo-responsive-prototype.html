@@ -137,6 +137,7 @@
     }
 
     .app {
+      position: relative;
       display: grid;
       width: 100%;
       height: 100%;
@@ -647,6 +648,39 @@
       line-height: 1.6;
     }
 
+    .spec-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .spec-row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 10px;
+      padding: 9px 10px;
+      background: var(--soft);
+      border: 1px solid #e4eaf3;
+      border-radius: var(--radius);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .spec-key {
+      color: var(--text);
+      font-weight: 760;
+    }
+
+    .spec-value {
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .spec-code {
+      color: var(--blue);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+    }
+
     .log {
       display: grid;
       gap: 8px;
@@ -674,8 +708,9 @@
     .overlay.show { display: grid; }
 
     .modal {
+      position: relative;
       width: min(460px, 100%);
-      overflow: hidden;
+      overflow: visible;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 14px;
@@ -780,6 +815,98 @@
 
     .toast.show { display: block; }
 
+    .annotations {
+      position: absolute;
+      inset: 0;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    .anno {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #8a4b00;
+      border: 2px solid #fff7d6;
+      border-radius: 50%;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: help;
+      pointer-events: auto;
+    }
+
+    .anno::before {
+      content: attr(data-label);
+    }
+
+    .anno::after {
+      content: attr(data-tip);
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      z-index: 30;
+      width: 260px;
+      padding: 10px 12px;
+      color: var(--text);
+      background: #fffdf4;
+      border: 1px solid #f4c150;
+      border-radius: var(--radius);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.22);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.55;
+      white-space: pre-line;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s ease;
+    }
+
+    .anno:hover::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .anno.left::after {
+      right: 0;
+      left: auto;
+    }
+
+    .anno.bottom::after {
+      top: auto;
+      bottom: calc(100% + 8px);
+    }
+
+    .desktop-app .anno.topbar-size { top: 8px; left: 230px; }
+    .desktop-app .anno.search-size { top: 9px; right: 72px; }
+    .desktop-app .anno.filter-size { top: 74px; left: 190px; }
+    .desktop-app .anno.list-size { top: 154px; left: 18px; }
+    .desktop-app .anno.card-size { top: 254px; left: 110px; }
+    .desktop-app .anno.detail-size { top: 150px; right: 22px; }
+    .desktop-app .anno.status-size { right: 26px; bottom: 8px; }
+
+    .tablet-app .anno.topbar-size { top: 8px; left: 210px; }
+    .tablet-app .anno.filter-size { top: 76px; left: 210px; }
+    .tablet-app .anno.list-size { top: 150px; left: 22px; }
+    .tablet-app .anno.detail-size { top: 150px; right: 28px; }
+    .tablet-app .anno.card-size { top: 262px; left: 72px; }
+
+    .phone-app .anno.topbar-size { top: 8px; left: 118px; }
+    .phone-app .anno.filter-size { top: 67px; left: 92px; }
+    .phone-app .anno.search-size { top: 125px; left: 42px; }
+    .phone-app .anno.card-size { top: 246px; left: 74px; }
+    .phone-app .anno.nav-size { right: 24px; bottom: 14px; }
+
+    .modal .anno.modal-frame { top: 14px; left: 130px; }
+    .modal .anno.modal-form { top: 150px; right: 18px; }
+    .modal .anno.modal-buttons { right: 104px; bottom: 22px; }
+
     @media (max-width: 1180px) {
       .workspace { grid-template-columns: 1fr; }
       .stage { min-height: 700px; }
@@ -868,6 +995,15 @@
               <aside id="desktopDetail" class="detail-pane"></aside>
             </section>
             <footer id="desktopStatus" class="statusbar"></footer>
+            <div class="annotations" aria-hidden="true">
+              <div class="anno topbar-size" data-label="D1" data-tip="顶部栏 TopBar&#10;height: 64&#10;padding: 0 20&#10;background: #ffffff&#10;border-bottom: #d8e0ec 1&#10;标题 font.pixelSize: 20, font.weight: 780&#10;副标题 font.pixelSize: 12, color: #667085"></div>
+              <div class="anno search-size left" data-label="D2" data-tip="搜索框 SearchBox&#10;width: 250, height: 38&#10;padding-left/right: 12&#10;radius: 8&#10;background: #f6f8fb&#10;border: #d8e0ec 1&#10;text color: #172033&#10;focus border: #2563eb&#10;focus shadow: rgba(37,99,235,0.14)"></div>
+              <div class="anno filter-size" data-label="D3" data-tip="筛选栏 FilterBar&#10;height: 58&#10;padding: 0 20&#10;gap: 12&#10;background: #fbfdff&#10;chip height: 34&#10;chip padding: 0 13&#10;chip radius: 999&#10;active text: #2563eb&#10;active bg: #e8f0ff&#10;active border: #bdd0ff&#10;chip font.weight: 650"></div>
+              <div class="anno list-size right" data-label="D4" data-tip="列表区 ListPane&#10;desktop grid: minmax(480, 1fr) + 330&#10;padding: 18&#10;background: #fcfdff&#10;right border: #d8e0ec 1&#10;分区标题 font.pixelSize: 18, weight: 780&#10;日期组标题 font.pixelSize: 13, weight: 760"></div>
+              <div class="anno card-size" data-label="D5" data-tip="任务卡 TodoCard&#10;minHeight: 78&#10;padding: 12&#10;grid columns: 32 / 1fr / auto&#10;gap: 10&#10;radius: 8&#10;background: #ffffff&#10;border: #d8e0ec 1&#10;hover bg: #f9fbff&#10;selected border: #93b4ff&#10;selected shadow: rgba(37,99,235,0.12)&#10;标题 font.pixelSize: 15, weight: 730&#10;元信息 font.pixelSize: 11&#10;勾选圆 width/height: 28, radius: 50%&#10;更多按钮: 34 x 34, radius: 8"></div>
+              <div class="anno detail-size left" data-label="D6" data-tip="详情栏 DetailPane&#10;preferredWidth: 330&#10;padding: 22&#10;background: #ffffff&#10;详情标题 font.pixelSize: 23, lineHeight: 1.3&#10;状态标签 height: 28&#10;状态标签 padding: 0 10&#10;状态标签 radius: 999&#10;状态标签 color: #2563eb, bg: #e8f0ff&#10;字段卡 padding: 13, radius: 8&#10;字段 label font: 12, color: #667085&#10;字段 value font: 14"></div>
+              <div class="anno status-size bottom" data-label="D7" data-tip="底部状态栏 StatusBar&#10;height: 42&#10;padding: 0 20&#10;background: #ffffff&#10;border-top: #d8e0ec 1&#10;font.pixelSize: 13&#10;text color: #667085"></div>
+            </div>
           </div>
         </section>
 
@@ -899,6 +1035,13 @@
               </div>
               <aside id="tabletDetail" class="detail-pane"></aside>
             </section>
+            <div class="annotations" aria-hidden="true">
+              <div class="anno topbar-size" data-label="T1" data-tip="平板顶部栏&#10;height: 66&#10;padding: 0 20&#10;gap: 12&#10;title font.pixelSize: 20, weight: 780&#10;subtitle font.pixelSize: 12&#10;+ 按钮: 40 x 40&#10;+ 按钮 radius: 50%&#10;+ 按钮 bg: #2563eb&#10;+ 按钮 text: #ffffff&#10;+ 按钮 font.pixelSize: 20"></div>
+              <div class="anno filter-size" data-label="T2" data-tip="平板筛选栏&#10;height: 58&#10;padding: 0 20&#10;chip height: 34&#10;chip padding: 0 13&#10;chip radius: 999&#10;inactive color: #667085&#10;active color: #2563eb&#10;active bg: #e8f0ff&#10;active border: #bdd0ff"></div>
+              <div class="anno list-size right" data-label="T3" data-tip="平板列表栏&#10;width: 44%&#10;Layout.fillHeight: true&#10;padding: 18&#10;background: #fcfdff&#10;border-right: #d8e0ec 1&#10;section title font: 18/780&#10;result hint font: 12, color: #667085"></div>
+              <div class="anno card-size" data-label="T4" data-tip="平板任务卡&#10;minHeight: 78&#10;padding: 12&#10;gap: 10&#10;radius: 8&#10;title font.pixelSize: 15&#10;title weight: 730&#10;pill height: 22&#10;pill padding: 0 8&#10;pill radius: 999&#10;高优先级 color: #dc2626, bg: #feeceb&#10;中优先级 color: #d97706, bg: #fff4d6&#10;低优先级 color: #16a34a, bg: #e8f7ee"></div>
+              <div class="anno detail-size left" data-label="T5" data-tip="平板详情栏&#10;width: 56%&#10;padding: 22&#10;background: #ffffff&#10;detail heading font.pixelSize: 23&#10;detail heading lineHeight: 1.3&#10;detail grid columns: 2&#10;grid gap: 12&#10;操作按钮 height: 42&#10;操作按钮 minWidth: 76&#10;操作按钮 padding: 0 16&#10;按钮 radius: 8&#10;主按钮 bg: #2563eb, text: #fff&#10;次按钮 bg: #f6f8fb, text: #172033&#10;危险按钮 bg: #feeceb, text: #dc2626"></div>
+            </div>
           </div>
         </section>
 
@@ -930,6 +1073,13 @@
               <button class="nav-btn">统计</button>
               <button class="nav-btn">设置</button>
             </nav>
+            <div class="annotations" aria-hidden="true">
+              <div class="anno topbar-size" data-label="P1" data-tip="手机顶部栏&#10;height: 58&#10;padding: 0 14&#10;gap: 12&#10;title font.pixelSize: 18&#10;title weight: 780&#10;subtitle font.pixelSize: 12&#10;返回按钮: 40 x 40, radius: 50%&#10;+ 按钮: 40 x 40, radius: 50%&#10;+ 按钮 bg: #2563eb&#10;+ 按钮 text: #ffffff"></div>
+              <div class="anno filter-size" data-label="P2" data-tip="手机筛选栏&#10;height: 52&#10;padding: 0 12&#10;横向排列，overflow-x: auto&#10;chip height: 34&#10;chip padding: 0 13&#10;chip radius: 999&#10;chip font.weight: 650&#10;active bg: #e8f0ff&#10;active color: #2563eb"></div>
+              <div class="anno search-size" data-label="P3" data-tip="手机搜索框&#10;width: 100%&#10;height: 42&#10;margin-bottom: 12&#10;padding: 0 12&#10;radius: 8&#10;background: #ffffff&#10;border: #d8e0ec 1&#10;text color: #172033&#10;focus border: #2563eb&#10;focus shadow: rgba(37,99,235,0.14)"></div>
+              <div class="anno card-size" data-label="P4" data-tip="手机任务卡&#10;minHeight: 78&#10;padding: 12&#10;radius: 8&#10;background: #ffffff&#10;border: #d8e0ec 1&#10;title font.pixelSize: 15&#10;meta font.pixelSize: 11&#10;check button: 28 x 28, radius: 50%&#10;more button: 34 x 34, radius: 8&#10;done opacity: 0.75&#10;done title color: #7b8798&#10;done title decoration: line-through"></div>
+              <div class="anno nav-size bottom" data-label="P5" data-tip="底部导航 BottomNav&#10;height: 62&#10;grid columns: repeat(3, 1fr)&#10;background: #ffffff&#10;border-top: #d8e0ec 1&#10;button font.pixelSize: 12&#10;button font.weight: 650&#10;inactive color: #667085&#10;active color: #2563eb&#10;button background: transparent"></div>
+            </div>
           </div>
         </section>
       </main>
@@ -949,6 +1099,53 @@
             <div class="rule">手机：单列列表，点击任务进入详情页，返回键回列表。</div>
             <div class="rule">新增/编辑：桌面和平板居中弹窗，手机底部表单。</div>
             <div class="rule">日期分组：已过期、今天、明天、以后、无日期、已完成。</div>
+          </div>
+        </section>
+        <section class="spec-box">
+          <div class="spec-title">尺寸与字体规格</div>
+          <div class="spec-table">
+            <div class="spec-row">
+              <div class="spec-key">设备画布</div>
+              <div class="spec-value">
+                桌面 <span class="spec-code">1180 x 720</span>，平板 <span class="spec-code">980 x 680</span>，手机 <span class="spec-code">390 x 760</span>。QML 可对应根项 <span class="spec-code">width/height</span> 或窗口断点。
+              </div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-key">主布局</div>
+              <div class="spec-value">
+                桌面内容区 <span class="spec-code">list: min 480, detail: 330</span>；平板 <span class="spec-code">44% / 56%</span>；手机单列。QML 对应 <span class="spec-code">RowLayout</span>、<span class="spec-code">StackLayout</span>、<span class="spec-code">Layout.preferredWidth</span>。
+              </div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-key">栏高</div>
+              <div class="spec-value">
+                桌面顶部 <span class="spec-code">64</span>、筛选 <span class="spec-code">58</span>、底栏 <span class="spec-code">42</span>；手机顶部 <span class="spec-code">58</span>、筛选 <span class="spec-code">52</span>、底栏 <span class="spec-code">62</span>。
+              </div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-key">控件尺寸</div>
+              <div class="spec-value">
+                搜索框 <span class="spec-code">250 x 38</span>，手机搜索框高 <span class="spec-code">42</span>，圆形图标按钮 <span class="spec-code">40 x 40</span>，普通按钮高 <span class="spec-code">42</span>，筛选 chip 高 <span class="spec-code">34</span>。
+              </div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-key">卡片尺寸</div>
+              <div class="spec-value">
+                任务卡片最小高 <span class="spec-code">78</span>、内边距 <span class="spec-code">12</span>、列间距 <span class="spec-code">10</span>；勾选按钮 <span class="spec-code">28 x 28</span>；标签 pill 高 <span class="spec-code">22</span>。
+              </div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-key">间距圆角</div>
+              <div class="spec-value">
+                基础圆角 <span class="spec-code">8</span>，设备圆角桌面 <span class="spec-code">12</span>、平板 <span class="spec-code">26</span>、手机 <span class="spec-code">34</span>；主舞台内边距 <span class="spec-code">24</span>，窗格内边距 <span class="spec-code">18/22</span>。
+              </div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-key">字体大小</div>
+              <div class="spec-value">
+                页面标题 <span class="spec-code">24</span>，应用标题 <span class="spec-code">20</span> / 手机 <span class="spec-code">18</span>，分区标题 <span class="spec-code">18</span>，详情标题 <span class="spec-code">23</span>，任务标题 <span class="spec-code">15</span>，正文 <span class="spec-code">14</span>，辅助文字 <span class="spec-code">12-13</span>，元信息 <span class="spec-code">11</span>。QML 对应 <span class="spec-code">font.pixelSize</span>。
+              </div>
+            </div>
           </div>
         </section>
         <section class="spec-box">
@@ -1007,6 +1204,11 @@
         <button class="btn secondary" data-close>取消</button>
         <button id="submitBtn" class="btn primary">创建任务</button>
       </div>
+      <div class="annotations" aria-hidden="true">
+        <div class="anno modal-frame" data-label="M1" data-tip="任务弹窗 Modal&#10;width: min(460, 100%)&#10;mobile width: min(430, 100%)&#10;desktop radius: 14&#10;mobile sheet radius: 18 18 0 0&#10;background: #ffffff&#10;border: #d8e0ec 1&#10;header height: 58&#10;header padding: 0 18&#10;title font.weight: 780&#10;close button: 34 x 34, radius: 50%, bg: #f6f8fb"></div>
+        <div class="anno modal-form left" data-label="M2" data-tip="表单字段&#10;form padding: 18&#10;form gap: 13&#10;label font.pixelSize: 12&#10;label color: #667085&#10;input/select height: 42&#10;input padding: 0 11&#10;textarea minHeight: 80&#10;textarea padding: 10 11&#10;field radius: 8&#10;border: #d8e0ec 1&#10;focus border: #2563eb&#10;focus shadow: rgba(37,99,235,0.14)&#10;error font: 12, color: #dc2626"></div>
+        <div class="anno modal-buttons bottom" data-label="M3" data-tip="弹窗按钮&#10;actions padding: 0 18 18&#10;gap: 10&#10;button minWidth: 76&#10;button height: 42&#10;button padding: 0 16&#10;button radius: 8&#10;button font.weight: 700&#10;primary bg: #2563eb, text: #ffffff&#10;secondary bg: #f6f8fb, text: #172033, border: #d8e0ec 1&#10;danger bg: #feeceb, text: #dc2626, border: #ffd2cf 1"></div>
+      </div>
     </div>
   </div>
 
@@ -1022,6 +1224,10 @@
       <div class="modal-actions">
         <button class="btn secondary" data-delete-close>取消</button>
         <button id="deleteBtn" class="btn danger">删除</button>
+      </div>
+      <div class="annotations" aria-hidden="true">
+        <div class="anno modal-frame" data-label="C1" data-tip="删除确认弹窗&#10;width: min(460, 100%)&#10;radius: 14&#10;background: #ffffff&#10;border: #d8e0ec 1&#10;header height: 58&#10;title font.weight: 780&#10;正文 padding: 18&#10;正文 font.pixelSize: 14"></div>
+        <div class="anno modal-buttons bottom" data-label="C2" data-tip="删除确认按钮&#10;button height: 42&#10;button minWidth: 76&#10;button radius: 8&#10;cancel bg: #f6f8fb, text: #172033&#10;delete bg: #feeceb, text: #dc2626&#10;delete border: #ffd2cf 1&#10;font.weight: 700"></div>
       </div>
     </div>
   </div>

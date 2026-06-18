@@ -5,7 +5,9 @@ import "layouts" as Layouts
 ApplicationWindow{
     id: mainWindow
     visible: true
-    visibility: Window.Maximized
+
+    minimumWidth: 1180
+    minimumHeight: 720
 
     readonly property bool isPhone: width < 600
     readonly property bool isTablet: width >= 600 && width < 1000

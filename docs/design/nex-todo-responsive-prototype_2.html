@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NexTodo 改进版交互原型 _2</title>
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --line: #d9e2ef;
+      --line-strong: #c5d2e3;
+      --text: #172033;
+      --muted: #667085;
+      --subtle: #98a2b3;
+      --blue: #2563eb;
+      --blue-soft: #e8f0ff;
+      --green: #16a34a;
+      --green-soft: #e8f7ee;
+      --red: #dc2626;
+      --red-soft: #feeceb;
+      --amber: #d97706;
+      --amber-soft: #fff4d6;
+      --radius: 8px;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
+      font-family: "Microsoft YaHei UI", "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: inherit;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { border: 0; cursor: pointer; }
+
+    .page {
+      width: min(1520px, calc(100vw - 36px));
+      margin: 18px auto 28px;
+    }
+
+    .headline {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .headline h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .headline p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 8px;
+      padding: 6px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .mode-btn {
+      height: 36px;
+      padding: 0 14px;
+      color: var(--muted);
+      background: transparent;
+      border-radius: var(--radius);
+      font-weight: 650;
+    }
+
+    .mode-btn.active {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stage {
+      min-height: 780px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: auto;
+      background: #dfe6f0;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+    }
+
+    .device {
+      display: none;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .device.active { display: block; }
+
+    .desktop {
+      width: min(1180px, 100%);
+      height: 720px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+    }
+
+    .tablet {
+      width: min(980px, 100%);
+      height: 680px;
+      border: 10px solid #202938;
+      border-radius: 26px;
+    }
+
+    .phone {
+      width: 390px;
+      height: 760px;
+      border: 10px solid #202938;
+      border-radius: 34px;
+    }
+
+    .app {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      background: #fbfdff;
+    }
+
+    .desktop-app {
+      grid-template-columns: 210px minmax(460px, 1fr) 342px;
+      grid-template-rows: 64px 1fr;
+    }
+
+    .tablet-app {
+      grid-template-columns: 42% 58%;
+      grid-template-rows: 64px 1fr;
+    }
+
+    .phone-app {
+      grid-template-rows: 58px 48px 1fr;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .desktop-app .topbar {
+      grid-column: 1 / -1;
+    }
+
+    .brand {
+      display: grid;
+      min-width: 0;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 780;
+    }
+
+    .subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .search {
+      width: 280px;
+      height: 38px;
+      padding: 0 12px;
+      color: var(--text);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      color: #fff;
+      background: var(--blue);
+      border: 1px solid var(--blue);
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .sidebar {
+      min-height: 0;
+      padding: 18px 14px;
+      overflow: auto;
+      background: #f8fafc;
+      border-right: 1px solid var(--line);
+    }
+
+    .nav-section {
+      margin-bottom: 18px;
+    }
+
+    .nav-title {
+      margin: 0 8px 8px;
+      color: var(--subtle);
+      font-size: 11px;
+      font-weight: 760;
+      text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      color: var(--muted);
+      background: transparent;
+      border-radius: var(--radius);
+      font-weight: 650;
+    }
+
+    .nav-item.active {
+      color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .nav-count {
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav-item.active .nav-count { color: var(--blue); }
+
+    .main-pane,
+    .detail-pane {
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .main-pane {
+      padding: 18px;
+      background: #fcfdff;
+    }
+
+    .tablet-app .main-pane {
+      border-right: 1px solid var(--line);
+    }
+
+    .detail-pane {
+      padding: 22px;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+    }
+
+    .tablet-app .detail-pane {
+      border-left: 0;
+    }
+
+    .list-toolbar {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .list-title-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 780;
+    }
+
+    .result-note {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tabs-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .chip {
+      height: 34px;
+      padding: 0 13px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .chip.active {
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-color: #bdd0ff;
+    }
+
+    .sort {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .select {
+      height: 34px;
+      padding: 0 10px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-card {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 76px;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      transition: border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+    }
+
+    .task-card:hover {
+      background: #f9fbff;
+      border-color: #b9c8dc;
+    }
+
+    .task-card.selected {
+      border-color: #93b4ff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .task-card.done {
+      opacity: 0.82;
+    }
+
+    .check {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: var(--subtle);
+      background: #fff;
+      border: 2px solid #cbd5e1;
+      border-radius: 50%;
+      font-weight: 800;
+    }
+
+    .task-card.done .check {
+      color: #fff;
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .task-title {
+      overflow: hidden;
+      font-size: 15px;
+      font-weight: 730;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-card.done .task-title {
+      color: #7b8798;
+      text-decoration: line-through;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      background: var(--surface-soft);
+      border: 1px solid #e4eaf3;
+      border-radius: 999px;
+    }
+
+    .due-overdue {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: #ffd2cf;
+    }
+
+    .due-today {
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-color: #bdd0ff;
+    }
+
+    .priority-high {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: #ffd2cf;
+    }
+
+    .priority-mid {
+      color: var(--amber);
+      background: var(--amber-soft);
+      border-color: #ffe1a3;
+    }
+
+    .priority-low {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: #c1e8cc;
+    }
+
+    .card-more {
+      width: 34px;
+      height: 34px;
+      color: var(--muted);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .empty {
+      display: none;
+      min-height: 260px;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      background: var(--surface-soft);
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius);
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .detail-heading {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: 23px;
+      line-height: 1.3;
+    }
+
+    .detail-status {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      color: var(--blue);
+      background: var(--blue-soft);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .desktop-app .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .field-card,
+    .note-box {
+      padding: 13px;
+      background: #fbfdff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .field-label {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .field-value {
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .note-box {
+      min-height: 104px;
+      line-height: 1.65;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      min-width: 76px;
+      height: 42px;
+      padding: 0 16px;
+      border-radius: var(--radius);
+      font-weight: 700;
+    }
+
+    .btn.primary { color: #fff; background: var(--blue); }
+    .btn.secondary { color: var(--text); background: var(--surface-soft); border: 1px solid var(--line); }
+    .btn.danger { color: var(--red); background: var(--red-soft); border: 1px solid #ffd2cf; }
+
+    .phone-filter {
+      display: flex;
+      gap: 8px;
+      padding: 7px 12px;
+      overflow-x: auto;
+      background: #fbfdff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .phone-content {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .phone-page {
+      position: absolute;
+      inset: 0;
+      padding: 14px;
+      overflow: auto;
+      background: #fbfdff;
+      transition: transform 0.2s ease;
+    }
+
+    .phone-list-page { transform: translateX(0); }
+    .phone-detail-page { transform: translateX(100%); background: var(--surface); }
+    .phone-app.detail-mode .phone-list-page { transform: translateX(-30%); }
+    .phone-app.detail-mode .phone-detail-page { transform: translateX(0); }
+
+    .phone-search {
+      width: 100%;
+      height: 42px;
+      margin-bottom: 12px;
+      padding: 0 12px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      outline: none;
+    }
+
+    .spec {
+      display: grid;
+      gap: 14px;
+    }
+
+    .spec-box {
+      padding: 17px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .spec-title {
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 780;
+    }
+
+    .spec-copy {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .rules {
+      display: grid;
+      gap: 9px;
+    }
+
+    .rule {
+      padding-left: 12px;
+      color: var(--muted);
+      border-left: 3px solid #c9d8f8;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      display: none;
+      padding: 11px 14px;
+      color: #fff;
+      background: #172033;
+      border-radius: var(--radius);
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18);
+      z-index: 30;
+      font-size: 13px;
+    }
+
+    .toast.show { display: block; }
+
+    @media (max-width: 1180px) {
+      .workspace { grid-template-columns: 1fr; }
+      .stage { min-height: 700px; }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: calc(100vw - 18px);
+        margin-top: 10px;
+      }
+
+      .headline { display: grid; }
+      .mode-switch { overflow-x: auto; }
+      .stage { min-height: 760px; padding: 10px; }
+      .device.phone { width: min(390px, 100%); }
+      .device.desktop,
+      .device.tablet {
+        width: 100%;
+        height: 680px;
+        border-width: 1px;
+        border-radius: 12px;
+      }
+      .desktop-app,
+      .tablet-app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 64px 1fr;
+      }
+      .sidebar,
+      .desktop-app .detail-pane,
+      .tablet-app .detail-pane {
+        display: none;
+      }
+      .desktop-app .topbar { grid-column: auto; }
+      .search { width: min(240px, 45vw); }
+      .sort { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="headline">
+      <div>
+        <h1>NexTodo 改进版原型 _2</h1>
+        <p>减少列表分组噪音：主列表只显示当前视图，时间改为任务标签，已完成进入独立视图。</p>
+      </div>
+      <div class="mode-switch" aria-label="设备切换">
+        <button class="mode-btn active" data-mode="desktop">桌面</button>
+        <button class="mode-btn" data-mode="tablet">平板</button>
+        <button class="mode-btn" data-mode="phone">手机</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <main class="stage">
+        <section id="desktopDevice" class="device desktop active">
+          <div class="app desktop-app">
+            <header class="topbar">
+              <div class="brand">
+                <div class="app-title">NexTodo</div>
+                <div class="subtitle">清晰任务流</div>
+              </div>
+              <input id="desktopSearch" class="search" type="search" placeholder="搜索任务...">
+              <button class="icon-btn" data-add title="新建任务">+</button>
+            </header>
+            <aside class="sidebar">
+              <section class="nav-section">
+                <div class="nav-title">视图</div>
+                <button class="nav-item active" data-view="active">当前任务 <span class="nav-count" data-count="active">0</span></button>
+                <button class="nav-item" data-view="today">今天 <span class="nav-count" data-count="today">0</span></button>
+                <button class="nav-item" data-view="planned">计划中 <span class="nav-count" data-count="planned">0</span></button>
+                <button class="nav-item" data-view="completed">已完成 <span class="nav-count" data-count="completed">0</span></button>
+              </section>
+              <section class="nav-section">
+                <div class="nav-title">优先级</div>
+                <button class="nav-item" data-priority="all">全部 <span class="nav-count" data-count="all">0</span></button>
+                <button class="nav-item" data-priority="高">高优先级 <span class="nav-count" data-count="high">0</span></button>
+              </section>
+            </aside>
+            <section class="main-pane">
+              <div class="list-toolbar">
+                <div class="list-title-row">
+                  <div>
+                    <div id="desktopTitle" class="section-title">当前任务</div>
+                    <div id="desktopNote" class="result-note">已完成任务不会混在这里，完成后进入“已完成”视图。</div>
+                  </div>
+                </div>
+                <div class="tabs-row">
+                  <button class="chip active" data-view="active">当前任务</button>
+                  <button class="chip" data-view="today">今天</button>
+                  <button class="chip" data-view="planned">计划中</button>
+                  <button class="chip" data-view="completed">已完成</button>
+                  <label class="sort">排序
+                    <select id="desktopSort" class="select">
+                      <option value="smart">智能排序</option>
+                      <option value="due">按日期</option>
+                      <option value="priority">按优先级</option>
+                      <option value="newest">最近创建</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div id="desktopList" class="task-list"></div>
+              <div id="desktopEmpty" class="empty">当前视图没有任务</div>
+            </section>
+            <aside id="desktopDetail" class="detail-pane"></aside>
+          </div>
+        </section>
+
+        <section id="tabletDevice" class="device tablet">
+          <div class="app tablet-app">
+            <header class="topbar" style="grid-column: 1 / -1;">
+              <div class="brand">
+                <div class="app-title">NexTodo</div>
+                <div class="subtitle">平板双栏</div>
+              </div>
+              <input id="tabletSearch" class="search" type="search" placeholder="搜索任务...">
+              <button class="icon-btn" data-add title="新建任务">+</button>
+            </header>
+            <section class="main-pane">
+              <div class="list-toolbar">
+                <div class="list-title-row">
+                  <div>
+                    <div id="tabletTitle" class="section-title">当前任务</div>
+                    <div id="tabletNote" class="result-note">用标签表达日期，不再拆成多段列表。</div>
+                  </div>
+                </div>
+                <div class="tabs-row">
+                  <button class="chip active" data-view="active">当前任务</button>
+                  <button class="chip" data-view="today">今天</button>
+                  <button class="chip" data-view="planned">计划中</button>
+                  <button class="chip" data-view="completed">已完成</button>
+                </div>
+              </div>
+              <div id="tabletList" class="task-list"></div>
+              <div id="tabletEmpty" class="empty">当前视图没有任务</div>
+            </section>
+            <aside id="tabletDetail" class="detail-pane"></aside>
+          </div>
+        </section>
+
+        <section id="phoneDevice" class="device phone">
+          <div id="phoneApp" class="app phone-app">
+            <header class="topbar">
+              <button id="phoneBack" class="card-more" title="返回" style="display: none;">‹</button>
+              <div class="brand">
+                <div class="app-title" style="font-size: 18px;">NexTodo</div>
+                <div id="phoneSubtitle" class="subtitle">当前任务</div>
+              </div>
+              <button class="icon-btn" data-add title="新建任务">+</button>
+            </header>
+            <nav class="phone-filter">
+              <button class="chip active" data-view="active">当前</button>
+              <button class="chip" data-view="today">今天</button>
+              <button class="chip" data-view="planned">计划</button>
+              <button class="chip" data-view="completed">完成</button>
+            </nav>
+            <section class="phone-content">
+              <div class="phone-page phone-list-page">
+                <input id="phoneSearch" class="phone-search" type="search" placeholder="搜索任务...">
+                <div id="phoneList" class="task-list"></div>
+                <div id="phoneEmpty" class="empty">当前视图没有任务</div>
+              </div>
+              <div id="phoneDetail" class="phone-page phone-detail-page"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <aside class="spec">
+        <section class="spec-box">
+          <div class="spec-title">这版改了什么</div>
+          <div class="rules">
+            <div class="rule">主列表不再同时出现“已过期、今天、明天、已完成”多段分组，降低阅读负担。</div>
+            <div class="rule">逾期、今天、明天、以后改成卡片上的日期标签，不改变列表结构。</div>
+            <div class="rule">已完成是独立视图。完成任务后从当前任务列表移走，不跳到列表底部。</div>
+            <div class="rule">桌面用左侧视图导航 + 中间列表 + 右侧详情，结构更接近常见待办软件。</div>
+            <div class="rule">手机保留单列列表和详情页跳转，但去掉底部“统计/设置”占位导航。</div>
+          </div>
+        </section>
+        <section class="spec-box">
+          <div class="spec-title">建议映射到 QML</div>
+          <div class="spec-copy">
+            `TaskListPage` 只负责渲染当前筛选结果；`dueGroup` 不再直接决定分组位置，而是转换成卡片标签。
+            `completed` 变化后通过筛选模型进入“已完成”视图，用户可以从导航切过去查看。
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let mode = "desktop";
+    let view = "active";
+    let selectedId = "todo-001";
+    let priorityFilter = "all";
+    let todos = [
+      { id: "todo-001", title: "整理过期任务样式", category: "UI", priority: "高", note: "逾期只作为醒目标签显示，不再单独拆出一个分组。", completed: false, createdAt: "08:10", due: "overdue" },
+      { id: "todo-002", title: "学习 QML ListView", category: "学习", priority: "中", note: "练习 delegate、model 绑定和选中态。", completed: false, createdAt: "09:30", due: "today" },
+      { id: "todo-003", title: "完成 C++ Model 练习", category: "编程", priority: "高", note: "实现 QAbstractListModel 的必要接口。", completed: true, createdAt: "11:20", due: "today" },
+      { id: "todo-004", title: "设计手机详情页", category: "UI", priority: "低", note: "手机端点击任务进入详情页，返回列表。", completed: false, createdAt: "14:00", due: "tomorrow" },
+      { id: "todo-005", title: "保存到 JSON", category: "编程", priority: "中", note: "使用 QStandardPaths 保存到应用数据目录。", completed: false, createdAt: "15:30", due: "future" },
+      { id: "todo-006", title: "阅读 Qt Android 文档", category: "学习", priority: "低", note: "暂时不安排日期。", completed: false, createdAt: "16:00", due: "none" }
+    ];
+
+    const devices = {
+      desktop: document.getElementById("desktopDevice"),
+      tablet: document.getElementById("tabletDevice"),
+      phone: document.getElementById("phoneDevice")
+    };
+    const lists = {
+      desktop: document.getElementById("desktopList"),
+      tablet: document.getElementById("tabletList"),
+      phone: document.getElementById("phoneList")
+    };
+    const empties = {
+      desktop: document.getElementById("desktopEmpty"),
+      tablet: document.getElementById("tabletEmpty"),
+      phone: document.getElementById("phoneEmpty")
+    };
+    const details = {
+      desktop: document.getElementById("desktopDetail"),
+      tablet: document.getElementById("tabletDetail"),
+      phone: document.getElementById("phoneDetail")
+    };
+    const searches = {
+      desktop: document.getElementById("desktopSearch"),
+      tablet: document.getElementById("tabletSearch"),
+      phone: document.getElementById("phoneSearch")
+    };
+    const phoneApp = document.getElementById("phoneApp");
+    const phoneBack = document.getElementById("phoneBack");
+    const phoneSubtitle = document.getElementById("phoneSubtitle");
+    const toast = document.getElementById("toast");
+
+    const viewTitles = {
+      active: "当前任务",
+      today: "今天",
+      planned: "计划中",
+      completed: "已完成"
+    };
+
+    const viewNotes = {
+      active: "未完成任务集中显示，日期通过标签表达。",
+      today: "只看今天要处理的任务。",
+      planned: "查看未来和无日期的待办。",
+      completed: "已完成任务独立查看，不混在当前列表里。"
+    };
+
+    const priorityWeight = { "高": 3, "中": 2, "低": 1 };
+    const dueWeight = { overdue: 0, today: 1, tomorrow: 2, future: 3, none: 4 };
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1600);
+    }
+
+    function visibleTodos(targetMode) {
+      const query = searches[targetMode].value.trim().toLowerCase();
+      let result = todos.filter(todo => {
+        const byView =
+          view === "completed" ? todo.completed :
+          view === "today" ? !todo.completed && todo.due === "today" :
+          view === "planned" ? !todo.completed && (todo.due === "tomorrow" || todo.due === "future" || todo.due === "none") :
+          !todo.completed;
+        const byPriority = priorityFilter === "all" || todo.priority === priorityFilter;
+        const byQuery = !query || [todo.title, todo.category, todo.note].some(value => value.toLowerCase().includes(query));
+        return byView && byPriority && byQuery;
+      });
+
+      const sort = document.getElementById("desktopSort")?.value || "smart";
+      if (sort === "priority") result = result.slice().sort((a, b) => priorityWeight[b.priority] - priorityWeight[a.priority]);
+      else if (sort === "due") result = result.slice().sort((a, b) => dueWeight[a.due] - dueWeight[b.due]);
+      else if (sort === "newest") result = result.slice().reverse();
+      else result = result.slice().sort((a, b) => dueWeight[a.due] - dueWeight[b.due] || priorityWeight[b.priority] - priorityWeight[a.priority]);
+      return result;
+    }
+
+    function render() {
+      renderCounts();
+      syncControls();
+      ["desktop", "tablet", "phone"].forEach(renderList);
+      renderDetails();
+      renderTitles();
+    }
+
+    function renderTitles() {
+      ["desktop", "tablet"].forEach(key => {
+        document.getElementById(`${key}Title`).textContent = viewTitles[view];
+        document.getElementById(`${key}Note`).textContent = viewNotes[view];
+      });
+      phoneSubtitle.textContent = viewTitles[view];
+    }
+
+    function renderCounts() {
+      const active = todos.filter(todo => !todo.completed).length;
+      const completed = todos.filter(todo => todo.completed).length;
+      const today = todos.filter(todo => !todo.completed && todo.due === "today").length;
+      const planned = todos.filter(todo => !todo.completed && ["tomorrow", "future", "none"].includes(todo.due)).length;
+      const high = todos.filter(todo => !todo.completed && todo.priority === "高").length;
+      document.querySelectorAll('[data-count="active"]').forEach(node => node.textContent = active);
+      document.querySelectorAll('[data-count="completed"]').forEach(node => node.textContent = completed);
+      document.querySelectorAll('[data-count="today"]').forEach(node => node.textContent = today);
+      document.querySelectorAll('[data-count="planned"]').forEach(node => node.textContent = planned);
+      document.querySelectorAll('[data-count="all"]').forEach(node => node.textContent = todos.length);
+      document.querySelectorAll('[data-count="high"]').forEach(node => node.textContent = high);
+    }
+
+    function syncControls() {
+      document.querySelectorAll("[data-view]").forEach(node => node.classList.toggle("active", node.dataset.view === view));
+      document.querySelectorAll("[data-priority]").forEach(node => node.classList.toggle("active", node.dataset.priority === priorityFilter));
+    }
+
+    function renderList(targetMode) {
+      const items = visibleTodos(targetMode);
+      lists[targetMode].innerHTML = "";
+      items.forEach(todo => lists[targetMode].appendChild(createCard(todo, targetMode)));
+      empties[targetMode].style.display = items.length ? "none" : "grid";
+    }
+
+    function createCard(todo, targetMode) {
+      const card = document.createElement("article");
+      card.className = `task-card ${todo.completed ? "done" : ""} ${todo.id === selectedId ? "selected" : ""}`;
+      card.innerHTML = `
+        <button class="check" title="切换完成">${todo.completed ? "✓" : ""}</button>
+        <div>
+          <div class="task-title">${escapeHtml(todo.title)}</div>
+          <div class="task-meta">
+            <span class="pill">${escapeHtml(todo.category)}</span>
+            <span class="pill ${dueClass(todo.due)}">${escapeHtml(dueLabel(todo.due))}</span>
+            <span class="pill ${priorityClass(todo.priority)}">${escapeHtml(todo.priority)}优先级</span>
+            <span class="pill">${escapeHtml(todo.createdAt)}</span>
+          </div>
+        </div>
+        <button class="card-more" title="更多">⋯</button>
+      `;
+      card.addEventListener("click", () => {
+        selectedId = todo.id;
+        if (targetMode === "phone") showPhoneDetail();
+        render();
+      });
+      card.querySelector(".check").addEventListener("click", event => {
+        event.stopPropagation();
+        toggleTodo(todo.id);
+      });
+      return card;
+    }
+
+    function renderDetails() {
+      const todo = todos.find(item => item.id === selectedId) || visibleTodos(mode)[0] || todos[0];
+      ["desktop", "tablet", "phone"].forEach(targetMode => {
+        details[targetMode].innerHTML = todo ? detailHtml(todo, targetMode === "phone") : `<div class="field-value" style="color: var(--muted);">暂无任务</div>`;
+        details[targetMode].querySelector("[data-toggle]")?.addEventListener("click", () => toggleTodo(todo.id));
+      });
+    }
+
+    function detailHtml(todo, compact) {
+      return `
+        <div class="detail-header">
+          <div>
+            <h2 class="detail-heading" style="${compact ? "font-size: 22px;" : ""}">${escapeHtml(todo.title)}</h2>
+            <div class="subtitle">创建于今天 ${escapeHtml(todo.createdAt)}</div>
+          </div>
+          <span class="detail-status">${todo.completed ? "已完成" : "当前任务"}</span>
+        </div>
+        <div class="detail-grid" style="${compact ? "grid-template-columns: 1fr;" : ""}">
+          <div class="field-card"><div class="field-label">分类</div><div class="field-value">${escapeHtml(todo.category)}</div></div>
+          <div class="field-card"><div class="field-label">日期</div><div class="field-value">${escapeHtml(dueLabel(todo.due))}</div></div>
+          <div class="field-card"><div class="field-label">优先级</div><div class="field-value">${escapeHtml(todo.priority)}</div></div>
+          <div class="field-card"><div class="field-label">状态</div><div class="field-value">${todo.completed ? "已完成" : "未完成"}</div></div>
+        </div>
+        <div class="field-label">备注</div>
+        <div class="note-box">${escapeHtml(todo.note || "无")}</div>
+        <div class="actions">
+          <button class="btn primary" data-toggle>${todo.completed ? "移回当前任务" : "完成任务"}</button>
+          <button class="btn secondary">编辑</button>
+          <button class="btn danger">删除</button>
+        </div>
+      `;
+    }
+
+    function switchMode(nextMode) {
+      mode = nextMode;
+      Object.entries(devices).forEach(([key, device]) => device.classList.toggle("active", key === mode));
+      document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+      hidePhoneDetail(false);
+      render();
+    }
+
+    function switchView(nextView) {
+      view = nextView;
+      priorityFilter = "all";
+      hidePhoneDetail(false);
+      render();
+    }
+
+    function toggleTodo(id) {
+      const todo = todos.find(item => item.id === id);
+      if (!todo) return;
+      todo.completed = !todo.completed;
+      selectedId = todo.id;
+      if (todo.completed && view !== "completed") showToast("已完成，任务已移到“已完成”视图");
+      if (!todo.completed && view === "completed") showToast("已移回当前任务");
+      render();
+    }
+
+    function showPhoneDetail() {
+      phoneApp.classList.add("detail-mode");
+      phoneBack.style.display = "grid";
+    }
+
+    function hidePhoneDetail(withRender = false) {
+      phoneApp.classList.remove("detail-mode");
+      phoneBack.style.display = "none";
+      if (withRender) render();
+    }
+
+    function dueLabel(value) {
+      return { overdue: "已逾期", today: "今天", tomorrow: "明天", future: "以后", none: "无日期" }[value] || "无日期";
+    }
+
+    function dueClass(value) {
+      if (value === "overdue") return "due-overdue";
+      if (value === "today") return "due-today";
+      return "";
+    }
+
+    function priorityClass(value) {
+      if (value === "高") return "priority-high";
+      if (value === "低") return "priority-low";
+      return "priority-mid";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.querySelectorAll(".mode-btn").forEach(btn => btn.addEventListener("click", () => switchMode(btn.dataset.mode)));
+    document.querySelectorAll("[data-view]").forEach(btn => btn.addEventListener("click", () => switchView(btn.dataset.view)));
+    document.querySelectorAll("[data-priority]").forEach(btn => btn.addEventListener("click", () => {
+      priorityFilter = btn.dataset.priority;
+      render();
+    }));
+    document.querySelectorAll("[data-add]").forEach(btn => btn.addEventListener("click", () => showToast("新建任务弹窗沿用上一版表单样式")));
+    document.getElementById("desktopSort").addEventListener("change", render);
+    Object.values(searches).forEach(input => input.addEventListener("input", render));
+    phoneBack.addEventListener("click", () => hidePhoneDetail(true));
+    render();
+  </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "../components" as MyComponents
 
 Item {
     id: root
@@ -10,28 +11,11 @@ Item {
         clip: true
         model: todoModel
 
-        delegate: Row {
-            width: ListView.view.width
-            height: 40
-            spacing: 8
 
-            Text {
-                id: titleText
-                text: title
-                width: 160
-                elide: Text.ElideRight
-                verticalAlignment: Text.AlignVCenter
-                height: parent.height
-            }
+        delegate: MyComponents.TodoCard{
+            width: listView.width
 
-            Text {
-                id: categoryText
-                text: category
-                width: 100
-                elide: Text.ElideRight
-                verticalAlignment: Text.AlignVCenter
-                height: parent.height
-            }
+            title: model.title
         }
     }
 }

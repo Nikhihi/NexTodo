@@ -39,7 +39,7 @@ Item {
         MyComponents.FilterBar{
             id: filter
             Layout.fillWidth: true
-            Layout.preferredHeight: 72
+            Layout.preferredHeight: 58
         }
         Rectangle {
             Layout.fillWidth: true
