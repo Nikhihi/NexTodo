@@ -2,3 +2,4 @@
 build/
 out/
 *.txt.user
+CMakeLists.txt.user

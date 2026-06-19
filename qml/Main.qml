@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "layouts" as Layouts
+import "components" as MyComponents
 
 ApplicationWindow{
     id: mainWindow
@@ -21,6 +22,14 @@ ApplicationWindow{
                                               : tabletLayout
     }
 
+    MyComponents.AddTodoDialog {
+        id: addTodoDialog
+        anchors.centerIn: parent
+        onAccepted: {
+            todoModel.addTodo(title, category, priority, note, dueDate)
+        }
+    }
+
     Component {
         id: phoneLayout
         Layouts.PhoneLayout {
@@ -39,6 +48,10 @@ ApplicationWindow{
         id: desktopLayout
         Layouts.DesktopLayout {
             anchors.fill: parent
+
+            onAddTodoRequested: {
+                addTodoDialog.open()
+            }
         }
     }
 }
