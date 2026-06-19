@@ -45,6 +45,10 @@ Item {
             totalNum: todoModel.totalNum
             activeNum: todoModel.activeNum
             completedNum: todoModel.completedNum
+
+            onFilterChanged: function(filterMode){
+                todoModel.setFilterMode(filterMode)
+            }
         }
         Rectangle {
             Layout.fillWidth: true

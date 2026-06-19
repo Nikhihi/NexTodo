@@ -9,6 +9,8 @@ Item {
     property int completedNum: 0
     property int activeNum: 0
 
+    signal filterChanged(string filter)
+
     Rectangle {
         width: parent.width
         height: 58
@@ -49,6 +51,9 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
+                onClicked: function(){
+                    filterChanged("total")
+                }
             }
             AbstractButton {
                 id: activeBtn
@@ -77,6 +82,9 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
+                onClicked: function(){
+                    filterChanged("active")
+                }
             }
             AbstractButton {
                 id: completedBtn
@@ -104,6 +112,9 @@ Item {
                     font.weight: 650
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
+                }
+                onClicked: function(){
+                    filterChanged("completed")
                 }
             }
 

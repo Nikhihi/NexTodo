@@ -23,7 +23,13 @@ int TodoModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
 
-    return m_todoItems.size();
+    int count = 0;
+    for(const NEX::TodoItem &item : m_todoItems){
+        if(matchesFilter(item))
+            ++count;
+    }
+
+    return count;
 }
 
 QVariant TodoModel::data(const QModelIndex &index, int role) const
@@ -32,26 +38,26 @@ QVariant TodoModel::data(const QModelIndex &index, int role) const
         return {};
     }
 
-    const auto &item = m_todoItems.at(index.row());
+    const NEX::TodoItem * item = itemForVisibleRow(index.row());
     switch (role) {
     case IdRole:
-        return item.id;
+        return item->id;
     case TitleRole:
-        return item.title;
+        return item->title;
     case CategoryRole:
-        return item.category;
+        return item->category;
     case PriorityRole:
-        return item.priority;
+        return item->priority;
     case NoteRole:
-        return item.note;
+        return item->note;
     case CompletedRole:
-        return item.completed;
+        return item->completed;
     case CreatedAtRole:
-        return item.createdAt.toString(Qt::ISODate);
+        return item->createdAt.toString(Qt::ISODate);
     case DueDateRole:
-        return item.dueDate.isValid() ? item.dueDate.toString(Qt::ISODate) : QString();
+        return item->dueDate.isValid() ? item->dueDate.toString(Qt::ISODate) : QString();
     case DueGroupRole:
-        return dueGroupFor(item);
+        //return dueGroupFor(item);
     default:
         return {};
     }
@@ -162,6 +168,49 @@ int TodoModel::completedCount() const
             completedCount++;
     }
     return completedCount;
+}
+
+QString TodoModel::filterMode() const
+{
+    return m_filterMode;
+}
+
+void TodoModel::setFilterMode(const QString &filterMode)
+{
+    if (m_filterMode == filterMode)
+            return;
+
+    beginResetModel();
+    m_filterMode = filterMode;
+    endResetModel();
+
+    emit filterModeChanged();
+}
+
+bool TodoModel::matchesFilter(const NEX::TodoItem &item) const
+{
+    if(m_filterMode == "completed")
+        return item.completed;
+    if(m_filterMode == "active")
+        return !item.completed;
+    return true;
+}
+
+const NEX::TodoItem * TodoModel::itemForVisibleRow(int row) const
+{
+    int visibleRow = 0;
+
+    for (const auto &item : m_todoItems) {
+        if (!matchesFilter(item))
+            continue;
+
+        if (visibleRow == row)
+            return &item;
+
+        ++visibleRow;
+    }
+
+    return nullptr;
 }
 
 int TodoModel::indexOfTodo(const QString &id) const
