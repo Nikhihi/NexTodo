@@ -13,6 +13,7 @@ Item {
     signal addTodoRequested()
     signal searchTextChangedByUser(string text)
 
+    signal signalEditTodo(string id)
 
     ColumnLayout {
         anchors.fill: parent
@@ -75,6 +76,10 @@ Item {
                     onSelectChanged: function(id){
                         todoItem.currentSelectedID = id
                         console.log("currentSelectedID:", id)
+                    }
+
+                    onEditTodo: function(id){
+                        root.signalEditTodo(id)
                     }
                 }
                 Rectangle {

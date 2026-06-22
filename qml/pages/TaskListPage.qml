@@ -9,6 +9,8 @@ Rectangle {
     color: "#ffffff"
     signal selectChanged(string id)
 
+    signal editTodo(string id)
+
     ColumnLayout{
         id: layout
         anchors {
@@ -51,7 +53,9 @@ Rectangle {
                         .arg(isCompleted ? "completed" : "active"))
                     todoModel.toggleTodo(todoId)
                 }
-
+                onEditTodo: function(id) {
+                    root.editTodo(id)
+                }
 
             }
 

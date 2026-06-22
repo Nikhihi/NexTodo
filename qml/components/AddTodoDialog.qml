@@ -8,6 +8,17 @@ Dialog {
     height: 630
     modal:true
     spacing: 10
+
+    property string todoID: ""
+    property bool editMode: false
+
+    // dataVersion 确保 TodoModel 内部变更时重新求值
+    property var todoData: {
+        var _ = todoModel.dataVersion
+        return editMode ? todoModel.getTodoMap(todoID) : ({})
+    }
+
+
     background: Rectangle {
         anchors.fill: parent
         anchors.leftMargin: 20
@@ -21,7 +32,7 @@ Dialog {
             spacing: 12
             Label {
                 id: label
-                text: "新建任务"
+                text: editMode ? "编辑任务" : "新建任务"
                 Layout.fillWidth: true;
                 font.pixelSize: 20
                 font.weight: 780
@@ -45,7 +56,7 @@ Dialog {
                 placeholderText: "请输入任务标题"
                 //horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-
+                text: todoData.title || ""
                 background: Rectangle {
                     radius: 12
                     border.width: 1
@@ -69,6 +80,7 @@ Dialog {
                     verticalAlignment: Text.AlignVCenter
                     elide: Text.ElideRight
                 }
+                currentIndex: find(todoData.category)
                 indicator: Text {
                     x: categoryBox.width - width - 12
                     y: (categoryBox.height - height) / 2
@@ -107,7 +119,7 @@ Dialog {
 
                     checkable: true
                     text: "低"
-
+                    checked: !editMode ? false : todoData.priority === "低" ? true : false
                     background: Rectangle {
                         anchors.fill: parent
                         radius: 12
@@ -132,6 +144,7 @@ Dialog {
 
                     checkable: true
                     text: "中"
+                    checked: !editMode ? false : todoData.priority === "中" ? true : false
 
                     background: Rectangle {
                         anchors.fill: parent
@@ -157,6 +170,7 @@ Dialog {
 
                     checkable: true
                     text: "高"
+                    checked: !editMode ? false : todoData.priority === "高" ? true : false
 
                     background: Rectangle {
                         anchors.fill: parent
@@ -173,6 +187,8 @@ Dialog {
                         verticalAlignment: Text.AlignVCenter
                     }
                 }
+
+
             }
 
             //完成日期
@@ -228,6 +244,7 @@ Dialog {
                     border.width: 1
                     border.color: "#d8e0ec"
                 }
+                text: todoData.note || ""
             }
 
             Item {
@@ -259,10 +276,11 @@ Dialog {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
+                    onClicked: root.close()
                 }
                 AbstractButton {
                     id: confirmBtn
-                    text: "创建任务"
+                    text: editMode ? "保存修改" : "创建任务"
                     Layout.preferredWidth: 100
                     Layout.preferredHeight: 42
 
@@ -278,6 +296,9 @@ Dialog {
                         color: "#ffffff"
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
+                    }
+                    onClicked: function(){
+                        root.close()
                     }
                 }
             }

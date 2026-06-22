@@ -51,6 +51,13 @@ ApplicationWindow{
 
             //新建任务弹窗
             onAddTodoRequested: {
+                addTodoDialog.editMode = false
+                addTodoDialog.open()
+            }
+
+            onSignalEditTodo: function(id){
+                addTodoDialog.editMode=true
+                addTodoDialog.todoID = id
                 addTodoDialog.open()
             }
         }

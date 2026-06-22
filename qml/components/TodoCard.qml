@@ -23,6 +23,9 @@ Rectangle {
     //修改完成情况信号
     signal changeCompleted(string todoId, bool isCompleted)
 
+    //编辑信号
+    signal editTodo(string todoId)
+
     RowLayout {
         z: 1  // 高于外部 MouseArea，确保内部按钮可点击
         anchors.fill: parent
@@ -153,6 +156,7 @@ Rectangle {
                 verticalAlignment: Text.AlignVCenter
                 font.pixelSize: 14
             }
+            onClicked: root.editTodo(root.todoId)
         }
 
     }
