@@ -58,12 +58,41 @@ Item {
         }
 
         Item {
+            id: todoItem
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Pages.TaskListPage {
+
+            property string currentSelectedID: ""
+
+            RowLayout {
                 anchors.fill: parent
-                visible: true
+                Pages.TaskListPage {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 3
+                    visible: true
+
+                    onSelectChanged: function(id){
+                        todoItem.currentSelectedID = id
+                        console.log("currentSelectedID:", id)
+                    }
+                }
+                Rectangle {
+                    Layout.fillHeight: true
+                    width: 1
+                    color: "#d5dde9"
+                }
+
+                Pages.TaskDetailPage{
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    Layout.fillHeight: true
+
+                    detailTodoID: todoItem.currentSelectedID
+                }
             }
+
+
         }
     }
 }

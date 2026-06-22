@@ -89,6 +89,8 @@ void TodoModel::addTodo(const QString &title, const QString &category, const QSt
     beginInsertRows(QModelIndex(), row, row);
     m_todoItems.append(item);
     endInsertRows();
+    m_dataVersion++;
+    emit dataVersionChanged();
 }
 
 void TodoModel::updateTodo(const QString &id, const QString &title, const QString &category, const QString &priority, const QString &note, const QDate &dueDate)
@@ -114,6 +116,8 @@ void TodoModel::updateTodo(const QString &id, const QString &title, const QStrin
         DueDateRole,
         DueGroupRole
     });
+    m_dataVersion++;
+    emit dataVersionChanged();
 }
 
 void TodoModel::removeTodo(const QString &id)
@@ -126,6 +130,8 @@ void TodoModel::removeTodo(const QString &id)
     beginRemoveRows(QModelIndex(), row, row);
     m_todoItems.removeAt(row);
     endRemoveRows();
+    m_dataVersion++;
+    emit dataVersionChanged();
 }
 
 void TodoModel::toggleTodo(const QString &id)
@@ -143,11 +149,18 @@ void TodoModel::toggleTodo(const QString &id)
     //“第 row 行的数据变了，变的是 completed 和 dueGroup 这两个 role。”
     emit dataChanged(modelIndex, modelIndex, { CompletedRole, DueGroupRole });
     emit countChanged();
+    m_dataVersion++;
+    emit dataVersionChanged();
 }
 
 int TodoModel::totalCount() const
 {
     return m_todoItems.size();
+}
+
+int TodoModel::dataVersion() const
+{
+    return m_dataVersion;
 }
 
 int TodoModel::activeCount() const
@@ -185,6 +198,24 @@ void TodoModel::setFilterMode(const QString &filterMode)
     endResetModel();
 
     emit filterModeChanged();
+}
+
+QVariantMap TodoModel::getTodoMap(const QString &id)
+{
+    QVariantMap _map;
+    for(auto &i : m_todoItems){
+        if(i.id == id){
+            _map.insert("title", i.title);
+            _map.insert("note", i.note);
+            _map.insert("category", i.category);
+            _map.insert("priority", i.priority);
+            _map.insert("completed", i.completed);
+            _map.insert("dueDate", i.dueDate);
+            _map.insert("createdAt", i.createdAt);
+            break;
+        }
+    }
+    return _map;
 }
 
 bool TodoModel::matchesFilter(const NEX::TodoItem &item) const

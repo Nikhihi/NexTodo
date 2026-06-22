@@ -49,6 +49,7 @@ ApplicationWindow{
         Layouts.DesktopLayout {
             anchors.fill: parent
 
+            //新建任务弹窗
             onAddTodoRequested: {
                 addTodoDialog.open()
             }

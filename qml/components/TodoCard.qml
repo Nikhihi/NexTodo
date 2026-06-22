@@ -10,18 +10,21 @@ Rectangle {
     property string category: ""
     property string priority: ""
     property bool completed: false
+    property bool selected: false
+    property bool hovered: false
 
     width: ListView.view ? ListView.view.width : 320
     height: 76
     radius: 8
-    border.color: "#d8e0ec"
-    color: "white"
-
+    border.width: 2
+    border.color: selected ?  "#93b4ff" : "#d8e0ec"
+    color: hovered ? "#f9fbff" : "white"
 
     //修改完成情况信号
     signal changeCompleted(string todoId, bool isCompleted)
 
     RowLayout {
+        z: 1  // 高于外部 MouseArea，确保内部按钮可点击
         anchors.fill: parent
         anchors.margins: 12
         spacing: 10
@@ -68,6 +71,7 @@ Rectangle {
                 font.pixelSize: 15
                 font.weight: 730
                 elide: Text.ElideRight
+                font.strikeout: root.completed
             }
 
             RowLayout {
@@ -125,6 +129,29 @@ Rectangle {
                 Item {
                     Layout.fillWidth: true
                 }
+            }
+        }
+
+        //更多操作按钮
+        AbstractButton {
+            id: editTodoBtn
+            Layout.preferredHeight: 34
+            Layout.preferredWidth: 34
+            text: "···"
+
+            background: Rectangle {
+                anchors.fill: parent
+                radius: 8
+                color: "#f6f8fb"
+                border.width: 1
+                border.color: "#d8e0ec"
+            }
+            contentItem: Text {
+                text: editTodoBtn.text
+                color: "#656f84"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: 14
             }
         }
 

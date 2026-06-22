@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QList>
+#include <QVariantMap>
 
 class TodoModel : public QAbstractListModel
 {
@@ -12,6 +13,7 @@ signals:
     void countChanged();
 
     void filterModeChanged();
+    void dataVersionChanged();
 public:
     Q_PROPERTY(int totalNum READ totalCount  NOTIFY countChanged)
     Q_PROPERTY(int activeNum READ activeCount  NOTIFY countChanged)
@@ -19,6 +21,9 @@ public:
 
     //筛选模式
     Q_PROPERTY(QString filterMode READ filterMode WRITE setFilterMode NOTIFY filterModeChanged)
+
+    //数据版本号，任何增删改都+1，用于 QML 刷新绑定
+    Q_PROPERTY(int dataVersion READ dataVersion NOTIFY dataVersionChanged)
 
     enum Roles{
         IdRole = Qt::UserRole + 1,
@@ -58,6 +63,7 @@ public:
     Q_INVOKABLE void removeTodo(const QString& id);
     Q_INVOKABLE void toggleTodo(const QString& id);
 
+    int dataVersion() const;
     Q_INVOKABLE int totalCount() const;
     Q_INVOKABLE int activeCount() const;
     Q_INVOKABLE int completedCount() const;
@@ -65,6 +71,13 @@ public:
     Q_INVOKABLE QString filterMode() const;
 
     Q_INVOKABLE void setFilterMode(const QString& filterMode);
+
+    /**
+     * @brief getTodoMap 获取指定ID的任务详情
+     * @param id 任务ID
+     * @return 详细信息
+     */
+    Q_INVOKABLE QVariantMap getTodoMap(const QString & id);
 
 private:
     bool matchesFilter(const NEX::TodoItem& item) const;
@@ -78,4 +91,5 @@ private:
     QList<NEX::TodoItem> m_todoItems;
 
     QString m_filterMode{"total"};
+    int m_dataVersion{0};
 };
