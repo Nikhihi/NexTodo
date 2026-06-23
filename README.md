@@ -99,7 +99,7 @@ JSON 持久化层 (QJsonDocument)
 
 ```bash
 # 克隆项目
-git clone https://github.com/你的用户名/NexTodo.git
+git clone https://github.com/Nikhihi/NexTodo.git
 cd NexTodo
 
 # 配置 & 构建
