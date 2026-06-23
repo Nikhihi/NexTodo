@@ -7,7 +7,7 @@ TodoModel::TodoModel(QObject *parent) : QAbstractListModel(parent)
 {
     {
         NEX::TodoItem item("1", "学习1", "学习", "中", "学习第一章节的内容",
-                           false, QDateTime::currentDateTime(), QDate::currentDate());
+                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(3));
         m_todoItems.append(item);
     }
     {

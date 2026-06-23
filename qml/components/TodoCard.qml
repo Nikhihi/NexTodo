@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQml
 
 Rectangle {
     id: root
@@ -9,6 +10,7 @@ Rectangle {
     property string title: ""
     property string category: ""
     property string priority: ""
+    property date dueDate: new Date()
     property bool completed: false
     property bool selected: false
     property bool hovered: false
@@ -128,6 +130,30 @@ Rectangle {
                         border.color: "#e4eaf3"
                     }
                 }
+
+                Label {
+                    id: dueDateLabel
+                    Layout.preferredHeight: 22
+                    Layout.alignment: Qt.AlignVCenter
+                    leftPadding: 8
+                    rightPadding: 8
+                    topPadding: 0
+                    bottomPadding: 0
+                    text: "计划完成:" + Qt.formatDate(dueDate, "yyyy-MM-dd")
+                    color: "#667085"
+                    font.pixelSize: 11
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+
+                    background: Rectangle {
+                        anchors.fill: parent
+                        radius: height / 2
+                        color: "#f8fafc"
+                        border.width: 1
+                        border.color: "#e4eaf3"
+                    }
+                }
+
 
                 Item {
                     Layout.fillWidth: true

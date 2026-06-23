@@ -43,9 +43,9 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 58
 
-            totalNum: todoModel.totalNum
-            activeNum: todoModel.activeNum
-            completedNum: todoModel.completedNum
+            totalNum: todoModel ? todoModel.totalNum : 0
+            activeNum: todoModel ? todoModel.activeNum : 0
+            completedNum: todoModel ? todoModel.completedNum : 0
 
             onFilterChanged: function(filterMode){
                 todoModel.setFilterMode(filterMode)

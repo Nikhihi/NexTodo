@@ -35,6 +35,7 @@ Rectangle {
                 title: model.title
                 category: model.category
                 priority: model.priority
+                dueDate: model.dueDate
                 completed: model.completed
                 selected: listView.currentIndex === index ? true : false
                 hovered: ma.containsMouse

@@ -17,5 +17,6 @@
         <file>qml/pages/TaskListPage.qml</file>
         <file>qml/styles/Theme.qml</file>
         <file>qml/components/AppHeader.qml</file>
+        <file>qml/components/CalendarPicker.qml</file>
     </qresource>
 </RCC>

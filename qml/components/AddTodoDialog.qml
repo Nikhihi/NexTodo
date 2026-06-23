@@ -1,11 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtCore
+import "../components" as MyComponents
 
 Dialog {
     id: root
     width: 430
-    height: 630
+    height: 666
     modal:true
     spacing: 10
 
@@ -14,8 +16,20 @@ Dialog {
 
     // dataVersion 确保 TodoModel 内部变更时重新求值
     property var todoData: {
-        var _ = todoModel.dataVersion
+        var _ = todoModel ? todoModel.dataVersion : 0
         return editMode ? todoModel.getTodoMap(todoID) : ({})
+    }
+
+    // CalendarPicker 不能直接绑 todoData.dueDate（嵌套属性追踪不到变化），
+    // 用一个扁平属性做中转
+    property date selectedDueDate: new Date()
+
+    onTodoDataChanged: {
+        if (editMode && todoData.dueDate) {
+            selectedDueDate = todoData.dueDate
+        } else {
+            selectedDueDate = new Date()
+        }
     }
 
 
@@ -62,6 +76,10 @@ Dialog {
                     border.width: 1
                     border.color: "#d8e0ec"
                 }
+                onTextEdited: {
+                    todoData.title = titleInput.text
+                }
+
             }
             Label {
                 id: categoryForm
@@ -95,6 +113,7 @@ Dialog {
                     border.width: 1
                     border.color: "#d8e0ec"
                 }
+                onActivated: todoData.category = currentText
             }
             //优先级
             Label {
@@ -108,6 +127,10 @@ Dialog {
                 Layout.preferredHeight: 42
                 ButtonGroup{
                     id: buttonGroup
+
+                    onClicked: {
+                        todoData.priority =  buttonGroup.checkedButton.text
+                    }
                 }
 
                 AbstractButton {
@@ -198,32 +221,23 @@ Dialog {
                 font.pixelSize: 13
                 color: "#757575"
             }
-            ComboBox{
-                id: duedateBox
-                Layout.preferredHeight: 42
-                Layout.fillWidth: true
-                contentItem: Text {
-                    text: duedateBox.displayText
-                    color: "#000000"
-                    font.pixelSize: 16
-                    verticalAlignment: Text.AlignVCenter
-                    elide: Text.ElideRight
-                }
-                indicator: Text {
-                    x: duedateBox.width - width - 12
-                    y: (duedateBox.height - height) / 2
-                    text: "V"
-                    color: "#000000"
-                    font.pixelSize: 10
-                }
-                model: ["今天", "明天", "后天"]
-                background: Rectangle {
-                    anchors.fill: parent
-                    radius: 12
-                    border.width: 1
-                    border.color: "#d8e0ec"
+            MyComponents.CalendarPicker {
+                id: calendarPicker
+                z: 1
+                anchors.horizontalCenter: parent.horizontalCenter
+                selectedDate: selectedDueDate
+                title: "Choose Date"
+                dateFormat: "yyyy年MM月dd日"
+                selectedColor: "#FF6B6B"
+                autoClose: true
+
+                // 监听日期选择
+                onDateSelected: function(date) {
+                    selectedDueDate = date
+                    todoData.dueDate = date
                 }
             }
+
 
             //备注
             Label {
@@ -245,6 +259,7 @@ Dialog {
                     border.color: "#d8e0ec"
                 }
                 text: todoData.note || ""
+                onEditingFinished: todoData.note = text
             }
 
             Item {
@@ -298,6 +313,8 @@ Dialog {
                         verticalAlignment: Text.AlignVCenter
                     }
                     onClicked: function(){
+                        editMode ? todoModel.updateTodo(todoID, todoData.title, todoData.category, todoData.priority, todoData.note, todoData.dueDate)
+                                 : todoModel.addTodo(todoData.title, todoData.category, todoData.priority, todoData.note, new Date(2026,5,23))
                         root.close()
                     }
                 }
