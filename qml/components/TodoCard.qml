@@ -116,8 +116,8 @@ Rectangle {
                     topPadding: 0
                     bottomPadding: 0
                     text: "优先级:" + root.priority
-                    color: root.priority==="高" ? "red":root.priority==="中" ? "yellow":"green"
-                    //color: "#667085"
+                    color: "#db2525"
+
                     font.pixelSize: 11
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -125,7 +125,7 @@ Rectangle {
                     background: Rectangle {
                         anchors.fill: parent
                         radius: height / 2
-                        color: "#f8fafc"
+                        color: root.priority==="高" ? "#feeceb" : root.priority==="中" ? "#fff4d6" : "#e8f7ee"
                         border.width: 1
                         border.color: "#e4eaf3"
                     }

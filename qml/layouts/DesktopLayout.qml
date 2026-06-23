@@ -29,6 +29,7 @@ Item {
             onSearchTextChangedByUser: function(text) {
                 root.searchText = text
                 root.searchTextChangedByUser(text)
+                todoModel.setFilterString(text)
             }
         }
 
@@ -94,10 +95,16 @@ Item {
                     Layout.fillHeight: true
 
                     detailTodoID: todoItem.currentSelectedID
+
+                    onEditTodo: function(id){
+                        root.signalEditTodo(id)
+                    }
+                    onRemoveTodo: function(id){
+                        todoItem.currentSelectedID = ""
+                        todoModel.removeTodo((id))
+                    }
                 }
             }
-
-
         }
     }
 }

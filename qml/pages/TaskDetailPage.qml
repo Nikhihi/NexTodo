@@ -8,6 +8,10 @@ Rectangle {
 
     property string detailTodoID: ""
 
+    signal editTodo(string id)
+
+    signal removeTodo(string id)
+
     // dataVersion 确保 TodoModel 内部变更时重新求值
     property var todoData: {
         var _ = todoModel ? todoModel.dataVersion : 0
@@ -148,6 +152,93 @@ Rectangle {
         }
 
         Item { Layout.fillHeight: true }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.minimumHeight: 36
+
+            AbstractButton {
+                id: controlBtn
+                Layout.fillWidth: true
+                Layout.maximumWidth: 80
+                Layout.minimumHeight: 36
+                property bool state: (todoData && todoData.completed !== undefined) ? todoData.completed : false
+                text: state ? "取消完成" : "完成"
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor  // 设置为手型指针
+
+                    onClicked: {
+                        todoModel.toggleTodo(detailTodoID)
+                    }
+                }
+
+                background: Rectangle {
+                    radius: 10
+                    color: "#2563eb"
+                }
+                contentItem: Text{
+                    text: controlBtn.text
+                    color: "#ffffff"
+                    font.pixelSize: 14
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+            AbstractButton {
+                id: editBtn
+                Layout.fillWidth: true
+                Layout.minimumHeight: 36
+                text: "编辑"
+
+                background: Rectangle {
+                    radius: 10
+                    color: "#f5f7fa"
+                }
+                contentItem: Text{
+                    text: editBtn.text
+                    color: "#000000"
+                    font.pixelSize: 14
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor  // 设置为手型指针
+
+                    onClicked: {
+                        editTodo(root.detailTodoID)
+                    }
+                }
+            }
+            AbstractButton {
+                id: deleteBtn
+                Layout.fillWidth: true
+                Layout.minimumHeight: 36
+                text: "删除"
+
+                background: Rectangle {
+                    radius: 10
+                    color: "#feeceb"
+                }
+                contentItem: Text{
+                    text: deleteBtn.text
+                    color: "#dc2626"
+                    font.pixelSize: 14
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor  // 设置为手型指针
+
+                    onClicked: {
+                        removeTodo(root.detailTodoID)
+                    }
+                }
+            }
+        }
 
         // 底部创建时间
         Label {

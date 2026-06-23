@@ -314,7 +314,7 @@ Dialog {
                     }
                     onClicked: function(){
                         editMode ? todoModel.updateTodo(todoID, todoData.title, todoData.category, todoData.priority, todoData.note, todoData.dueDate)
-                                 : todoModel.addTodo(todoData.title, todoData.category, todoData.priority, todoData.note, new Date(2026,5,23))
+                                 : todoModel.addTodo(todoData.title, todoData.category, todoData.priority, todoData.note, todoData.dueDate || new Date())
                         root.close()
                     }
                 }

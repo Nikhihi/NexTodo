@@ -5,6 +5,7 @@
 #include <QAbstractListModel>
 #include <QList>
 #include <QVariantMap>
+#include "../storage/TodoStorage.h"
 
 class TodoModel : public QAbstractListModel
 {
@@ -70,7 +71,17 @@ public:
 
     Q_INVOKABLE QString filterMode() const;
 
+    /**
+     * @brief setFilterMode 设置筛选模式
+     * @param filterMode total、completed、active
+     */
     Q_INVOKABLE void setFilterMode(const QString& filterMode);
+
+    /**
+     * @brief setFilterString 设置筛选字段
+     * @param filterString
+     */
+    Q_INVOKABLE void setFilterString(const QString& filterString);
 
     /**
      * @brief getTodoMap 获取指定ID的任务详情
@@ -91,5 +102,8 @@ private:
     QList<NEX::TodoItem> m_todoItems;
 
     QString m_filterMode{"total"};
+    QString m_filterString{""};
     int m_dataVersion{0};
+
+    TodoStorage m_todoStorage;
 };

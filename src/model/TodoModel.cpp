@@ -5,16 +5,19 @@
 
 TodoModel::TodoModel(QObject *parent) : QAbstractListModel(parent)
 {
-    {
-        NEX::TodoItem item("1", "学习1", "学习", "中", "学习第一章节的内容",
-                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(3));
-        m_todoItems.append(item);
-    }
-    {
-        NEX::TodoItem item("2", "单元测试", "考试", "高", "进行单元考试",
-                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(1));
-        m_todoItems.append(item);
-    }
+//    {
+//        NEX::TodoItem item("1", "学习1", "学习", "中", "学习第一章节的内容",
+//                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(3));
+//        m_todoItems.append(item);
+//    }
+//    {
+//        NEX::TodoItem item("2", "单元测试", "考试", "高", "进行单元考试",
+//                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(1));
+//        m_todoItems.append(item);
+
+//    }
+
+    m_todoItems = m_todoStorage.loadTodos();
 }
 
 int TodoModel::rowCount(const QModelIndex &parent) const
@@ -91,6 +94,7 @@ void TodoModel::addTodo(const QString &title, const QString &category, const QSt
     endInsertRows();
     m_dataVersion++;
     emit dataVersionChanged();
+    m_todoStorage.saveTodos(m_todoItems);
 }
 
 void TodoModel::updateTodo(const QString &id, const QString &title, const QString &category, const QString &priority, const QString &note, const QDate &dueDate)
@@ -118,6 +122,8 @@ void TodoModel::updateTodo(const QString &id, const QString &title, const QStrin
     });
     m_dataVersion++;
     emit dataVersionChanged();
+
+    m_todoStorage.saveTodos(m_todoItems);
 }
 
 void TodoModel::removeTodo(const QString &id)
@@ -132,6 +138,8 @@ void TodoModel::removeTodo(const QString &id)
     endRemoveRows();
     m_dataVersion++;
     emit dataVersionChanged();
+
+    m_todoStorage.saveTodos(m_todoItems);
 }
 
 void TodoModel::toggleTodo(const QString &id)
@@ -151,6 +159,8 @@ void TodoModel::toggleTodo(const QString &id)
     emit countChanged();
     m_dataVersion++;
     emit dataVersionChanged();
+
+    m_todoStorage.saveTodos(m_todoItems);
 }
 
 int TodoModel::totalCount() const
@@ -200,6 +210,17 @@ void TodoModel::setFilterMode(const QString &filterMode)
     emit filterModeChanged();
 }
 
+void TodoModel::setFilterString(const QString &filterString)
+{
+    if(m_filterString == filterString)
+        return;
+    beginResetModel();
+    m_filterString = filterString;
+    endResetModel();
+
+    emit filterModeChanged();
+}
+
 QVariantMap TodoModel::getTodoMap(const QString &id)
 {
     QVariantMap _map;
@@ -221,10 +242,11 @@ QVariantMap TodoModel::getTodoMap(const QString &id)
 bool TodoModel::matchesFilter(const NEX::TodoItem &item) const
 {
     if(m_filterMode == "completed")
-        return item.completed;
+        return item.completed && item.title.contains(m_filterString);
+
     if(m_filterMode == "active")
-        return !item.completed;
-    return true;
+        return !item.completed && item.title.contains(m_filterString);
+    return item.title.contains(m_filterString);
 }
 
 const NEX::TodoItem * TodoModel::itemForVisibleRow(int row) const
