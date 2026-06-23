@@ -17,7 +17,7 @@ Dialog {
     // dataVersion 确保 TodoModel 内部变更时重新求值
     property var todoData: {
         var _ = todoModel ? todoModel.dataVersion : 0
-        return editMode ? todoModel.getTodoMap(todoID) : ({})
+        return (todoModel && editMode) ? todoModel.getTodoMap(todoID) : ({})
     }
 
     // CalendarPicker 不能直接绑 todoData.dueDate（嵌套属性追踪不到变化），

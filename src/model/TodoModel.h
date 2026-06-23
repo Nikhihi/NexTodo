@@ -14,6 +14,7 @@ signals:
     void countChanged();
 
     void filterModeChanged();
+    void sortModeChanged();
     void dataVersionChanged();
 public:
     Q_PROPERTY(int totalNum READ totalCount  NOTIFY countChanged)
@@ -22,6 +23,9 @@ public:
 
     //筛选模式
     Q_PROPERTY(QString filterMode READ filterMode WRITE setFilterMode NOTIFY filterModeChanged)
+
+    //排序模式
+    Q_PROPERTY(QString sortMode READ sortMode WRITE setSortMode NOTIFY sortModeChanged)
 
     //数据版本号，任何增删改都+1，用于 QML 刷新绑定
     Q_PROPERTY(int dataVersion READ dataVersion NOTIFY dataVersionChanged)
@@ -77,6 +81,14 @@ public:
      */
     Q_INVOKABLE void setFilterMode(const QString& filterMode);
 
+    Q_INVOKABLE QString sortMode() const;
+
+    /**
+     * @brief setSortMode 设置排序模式
+     * @param sortMode createdAtDesc、createdAtAsc、priority、completedLast
+     */
+    Q_INVOKABLE void setSortMode(const QString& sortMode);
+
     /**
      * @brief setFilterString 设置筛选字段
      * @param filterString
@@ -90,6 +102,12 @@ public:
      */
     Q_INVOKABLE QVariantMap getTodoMap(const QString & id);
 
+    /**
+     * @brief groupCount 获取指定分组中（符合当前筛选条件）的任务数量
+     * @param group 分组名（已过期/今天/明天/以后/无日期/已完成）
+     */
+    Q_INVOKABLE int groupCount(const QString& group) const;
+
 private:
     bool matchesFilter(const NEX::TodoItem& item) const;
 
@@ -98,11 +116,14 @@ private:
 private:
     int indexOfTodo(const QString& id) const;
     QString dueGroupFor(const NEX::TodoItem& item) const;
+    int groupSortOrder(const QString& group) const;
+    void sortItems();
 
     QList<NEX::TodoItem> m_todoItems;
 
     QString m_filterMode{"total"};
     QString m_filterString{""};
+    QString m_sortMode{"completedLast"};
     int m_dataVersion{0};
 
     TodoStorage m_todoStorage;

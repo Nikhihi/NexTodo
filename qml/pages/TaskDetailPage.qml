@@ -15,7 +15,7 @@ Rectangle {
     // dataVersion 确保 TodoModel 内部变更时重新求值
     property var todoData: {
         var _ = todoModel ? todoModel.dataVersion : 0
-        return detailTodoID ? todoModel.getTodoMap(detailTodoID) : ({})
+        return (todoModel && detailTodoID) ? todoModel.getTodoMap(detailTodoID) : ({})
     }
 
     // ---- 空状态 ----

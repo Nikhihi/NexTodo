@@ -36,8 +36,7 @@ Item {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            //color: "#e5e7eb"
-            color: "red"
+            color: "#e5e7eb"
         }
         MyComponents.FilterBar{
             id: filter
@@ -76,7 +75,6 @@ Item {
 
                     onSelectChanged: function(id){
                         todoItem.currentSelectedID = id
-                        console.log("currentSelectedID:", id)
                     }
 
                     onEditTodo: function(id){
@@ -104,6 +102,27 @@ Item {
                         todoModel.removeTodo((id))
                     }
                 }
+            }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            color: "#e5e7eb"
+        }
+        Label {
+            Layout.fillWidth: true
+            Layout.minimumHeight: 42
+            font.pixelSize: 13
+            padding: 20
+            color: "#667085"
+            text: "共" + (todoModel ? todoModel.totalNum : 0) + "个任务，"
+                  + "已完成" + (todoModel ? todoModel.completedNum : 0) + "，"
+                  + "进行中" + (todoModel ? todoModel.activeNum : 0) + "个"
+
+            verticalAlignment: "AlignVCenter"
+            background: Rectangle {
+                color: "#ffffff"
             }
         }
     }

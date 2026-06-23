@@ -154,11 +154,16 @@ Item {
                     color: "#667085"
                     font.pixelSize: 10
                 }
-                model: ["最近更新", "昨天"]
+                model: ["最近创建", "最早创建", "优先级最高", "已完成在后"]
+                // 映射到 C++ sortMode: createdAtDesc / createdAtAsc / priority / completedLast
+                property var sortModes: ["createdAtDesc", "createdAtAsc", "priority", "completedLast"]
+                currentIndex: 3  // 默认"已完成在后"
+                onActivated: function(index) {
+                    todoModel.setSortMode(sortModes[index])
+                }
                 background: Rectangle {
                     anchors.fill: parent
                     radius: height / 2
-                    //color: completedBtn.checked ? "#e8f0ff" : completedBtn.hovered ? "#f6f8fb" : "transparent"
                     border.width: 1
                     border.color: "#e8f0ff"
                 }

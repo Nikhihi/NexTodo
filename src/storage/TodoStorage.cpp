@@ -17,7 +17,6 @@ QString TodoStorage::storagePath() const
 {
     const QString dir = QCoreApplication::applicationDirPath();
     QDir().mkpath(dir);
-    qDebug()<< dir;
     return dir + QStringLiteral("/todos.json");
 }
 

@@ -1,23 +1,13 @@
 #include "TodoModel.h"
 #include <QUuid>
 #include <QDateTime>
+#include <algorithm>
 
 
 TodoModel::TodoModel(QObject *parent) : QAbstractListModel(parent)
 {
-//    {
-//        NEX::TodoItem item("1", "学习1", "学习", "中", "学习第一章节的内容",
-//                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(3));
-//        m_todoItems.append(item);
-//    }
-//    {
-//        NEX::TodoItem item("2", "单元测试", "考试", "高", "进行单元考试",
-//                           false, QDateTime::currentDateTime(), QDate::currentDate().addDays(1));
-//        m_todoItems.append(item);
-
-//    }
-
     m_todoItems = m_todoStorage.loadTodos();
+    sortItems();
 }
 
 int TodoModel::rowCount(const QModelIndex &parent) const
@@ -60,7 +50,7 @@ QVariant TodoModel::data(const QModelIndex &index, int role) const
     case DueDateRole:
         return item->dueDate.isValid() ? item->dueDate.toString(Qt::ISODate) : QString();
     case DueGroupRole:
-        //return dueGroupFor(item);
+        return dueGroupFor(*item);
     default:
         return {};
     }
@@ -88,10 +78,10 @@ void TodoModel::addTodo(const QString &title, const QString &category, const QSt
     NEX::TodoItem item(id, title, category, priority, note,
                        false, currentTime, dueDate);
 
-    const int row = m_todoItems.size();
-    beginInsertRows(QModelIndex(), row, row);
+    beginResetModel();
     m_todoItems.append(item);
-    endInsertRows();
+    sortItems();
+    endResetModel();
     m_dataVersion++;
     emit dataVersionChanged();
     m_todoStorage.saveTodos(m_todoItems);
@@ -105,21 +95,29 @@ void TodoModel::updateTodo(const QString &id, const QString &title, const QStrin
     }
 
     auto &item = m_todoItems[row];
+    const QString oldGroup = dueGroupFor(item);
+
     item.title = title;
     item.category = category;
     item.priority = priority;
     item.note = note;
     item.dueDate = dueDate;
 
-    const auto modelIndex = index(row, 0);
-    emit dataChanged(modelIndex, modelIndex, {
-        TitleRole,
-        CategoryRole,
-        PriorityRole,
-        NoteRole,
-        DueDateRole,
-        DueGroupRole
-    });
+    if (dueGroupFor(item) != oldGroup) {
+        beginResetModel();
+        sortItems();
+        endResetModel();
+    } else {
+        const auto modelIndex = index(row, 0);
+        emit dataChanged(modelIndex, modelIndex, {
+            TitleRole,
+            CategoryRole,
+            PriorityRole,
+            NoteRole,
+            DueDateRole,
+            DueGroupRole
+        });
+    }
     m_dataVersion++;
     emit dataVersionChanged();
 
@@ -150,12 +148,17 @@ void TodoModel::toggleTodo(const QString &id)
     }
 
     auto &item = m_todoItems[row];
+    const QString oldGroup = dueGroupFor(item);
     item.completed = !item.completed;
 
-    const auto modelIndex = index(row, 0);
-    //必须发才会通知qml里 数据改变了
-    //“第 row 行的数据变了，变的是 completed 和 dueGroup 这两个 role。”
-    emit dataChanged(modelIndex, modelIndex, { CompletedRole, DueGroupRole });
+    if (dueGroupFor(item) != oldGroup) {
+        beginResetModel();
+        sortItems();
+        endResetModel();
+    } else {
+        const auto modelIndex = index(row, 0);
+        emit dataChanged(modelIndex, modelIndex, { CompletedRole, DueGroupRole });
+    }
     emit countChanged();
     m_dataVersion++;
     emit dataVersionChanged();
@@ -208,6 +211,24 @@ void TodoModel::setFilterMode(const QString &filterMode)
     endResetModel();
 
     emit filterModeChanged();
+}
+
+QString TodoModel::sortMode() const
+{
+    return m_sortMode;
+}
+
+void TodoModel::setSortMode(const QString &sortMode)
+{
+    if (m_sortMode == sortMode)
+        return;
+
+    beginResetModel();
+    m_sortMode = sortMode;
+    sortItems();
+    endResetModel();
+
+    emit sortModeChanged();
 }
 
 void TodoModel::setFilterString(const QString &filterString)
@@ -299,4 +320,70 @@ QString TodoModel::dueGroupFor(const NEX::TodoItem &item) const
     }
 
     return QStringLiteral("以后");
+}
+
+int TodoModel::groupSortOrder(const QString &group) const
+{
+    if (group == QStringLiteral("已过期")) return 0;
+    if (group == QStringLiteral("今天"))   return 1;
+    if (group == QStringLiteral("明天"))   return 2;
+    if (group == QStringLiteral("以后"))   return 3;
+    if (group == QStringLiteral("无日期")) return 4;
+    if (group == QStringLiteral("已完成")) return 5;
+    return 6;
+}
+
+static int priorityOrder(const QString &priority)
+{
+    if (priority == QStringLiteral("高")) return 0;
+    if (priority == QStringLiteral("中")) return 1;
+    if (priority == QStringLiteral("低")) return 2;
+    return 3;
+}
+
+void TodoModel::sortItems()
+{
+    std::stable_sort(m_todoItems.begin(), m_todoItems.end(),
+        [this](const NEX::TodoItem &a, const NEX::TodoItem &b) {
+            // 第1级：分组优先级（永远不动）
+            int orderA = groupSortOrder(dueGroupFor(a));
+            int orderB = groupSortOrder(dueGroupFor(b));
+            if (orderA != orderB)
+                return orderA < orderB;
+
+            // 第2级：组内按用户选择的排序方式
+            if (m_sortMode == QStringLiteral("createdAtDesc")) {
+                return a.createdAt > b.createdAt;   // 最近创建在前
+            }
+            if (m_sortMode == QStringLiteral("createdAtAsc")) {
+                return a.createdAt < b.createdAt;   // 最早创建在前
+            }
+            if (m_sortMode == QStringLiteral("priority")) {
+                int pA = priorityOrder(a.priority);
+                int pB = priorityOrder(b.priority);
+                if (pA != pB) return pA < pB;       // 高→中→低
+                // 同级优先级按截止日期
+                if (a.dueDate.isValid() && b.dueDate.isValid())
+                    return a.dueDate < b.dueDate;
+                if (a.dueDate.isValid() != b.dueDate.isValid())
+                    return a.dueDate.isValid();
+                return a.createdAt < b.createdAt;
+            }
+            // 默认 completedLast：按截止日期升序，无日期排最后
+            if (a.dueDate.isValid() && b.dueDate.isValid())
+                return a.dueDate < b.dueDate;
+            if (a.dueDate.isValid() != b.dueDate.isValid())
+                return a.dueDate.isValid();
+            return a.createdAt < b.createdAt;
+        });
+}
+
+int TodoModel::groupCount(const QString &group) const
+{
+    int count = 0;
+    for (const auto &item : m_todoItems) {
+        if (dueGroupFor(item) == group && matchesFilter(item))
+            ++count;
+    }
+    return count;
 }
